@@ -6,7 +6,12 @@ module.exports = function(env) {
     const envConfig = require(`./webpack.config.${env}`);
     return {
         ...{
-            entry: './src/app.js',
+            entry: {
+                main: [
+                    '@babel/polyfill',
+                    './src/app.js'
+                ]
+            },
             module: {
                 rules: [
                     {
@@ -29,12 +34,28 @@ module.exports = function(env) {
                             },
                             {
                                 loader: 'css-loader'
-                            }, 
-                            {
-                                loader: 'sass-loader'
                             }
                         ]
-                    }
+                    },
+                    {
+                        test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
+                        use: [
+                          {
+                            loader: 'file-loader',
+                            options: {
+                              name: '[name].[ext]',
+                              outputPath: 'fonts/'
+                            }
+                          }
+                        ]
+                    },
+                    {
+                        test: /\.(png|jpe?g|gif)$/i,
+                        loader: 'file-loader',
+                        options: {
+                          outputPath: 'images',
+                        },
+                    },
                 ]
             },
             plugins:[
@@ -42,8 +63,8 @@ module.exports = function(env) {
                 new htmlwp(),
             ],
             output: {
-                path: path.resolve(__dirname, 'dist'),
-                filename: '[hash].js'
+                filename: '[hash].js',
+                publicPath: "/"
             }
         },
         ...envConfig
