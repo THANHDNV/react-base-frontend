@@ -10,7 +10,8 @@
   "scripts": {
     "build": "webpack --env=prod",
     "dev": "webpack --env=dev",
-    "watch": "webpack-dev-server --env=dev"
+    "watch": "webpack-dev-server --env=dev",
+    "start": "serve dist"
   },
   "repository": {
     "type": "git",
@@ -29,6 +30,7 @@
     "css-loader": "^3.2.0",
     "file-loader": "^4.2.0",
     "html-webpack-plugin": "^3.2.0",
+    "serve": "^11.2.0",
     "style-loader": "^1.0.0",
     "uglifyjs-webpack-plugin": "^2.2.0",
     "webpack": "^4.41.2",
