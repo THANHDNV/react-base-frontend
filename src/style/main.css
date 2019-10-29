@@ -84,7 +84,7 @@ input:focus {
     position: relative;
     padding: 0 8px;
     min-height: 85px;
-    width: 100%;
+    width: auto;
     margin-bottom: 20px;
     border-radius: 5px;
 }
