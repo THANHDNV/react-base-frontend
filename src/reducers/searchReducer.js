@@ -29,7 +29,7 @@ export default function searchReducer(state=initialState, action) {
             return {
                 ...state,
                 fetching: false,
-                fetched: true,
+                fetched: false,
                 error: action.payload
             }
         case searchConstant.SEARCH_CLEAR:

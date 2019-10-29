@@ -16,6 +16,7 @@ import '../style/solid.min.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
 
 import audioImage from '../assets/images/audio-wave.jpg'
+import loadingGif from '../assets/images/loading.gif'
 
 class SearchPage extends React.Component {
     constructor(props) {
@@ -33,14 +34,15 @@ class SearchPage extends React.Component {
         this.setState({
             searchValue: value
         })
-        if (this.timeout) {
-            clearTimeout(this.timeout)
-        }
-        this.timeout = setTimeout(() => {
-            if (value && value.length > 0) {
-                this.props.dispatch(searchAction.search(value))
+    }
+
+    onInputKeyPress(e) {
+        let searchValue = e.target.value
+        if (e.key == "Enter") {
+            if (searchValue && searchValue.length > 0) {
+                this.props.dispatch(searchAction.search(searchValue))
             }
-        }, 500)
+        }
     }
 
     onClickAdd(result) {
@@ -376,14 +378,23 @@ class SearchPage extends React.Component {
                         Search from NASA
                     </div>
                     <div>
-                        <input type='text' name='searchValue' value={sValue || searchValue} placeholder="Type something to search..." onChange={this.onInput.bind(this)} style={{width: "100%", boxSizing:"border-box", padding: "1%", fontSize:"2em", borderRadius: "5px", border: "1px solid #D8D8D8"}}/>
+                        <input type='text' name='searchValue' disabled={fetching?'disabled': ''} value={searchValue || sValue} placeholder="Type something to search..." onChange={this.onInput.bind(this)} onKeyPress={this.onInputKeyPress.bind(this)} style={{width: "100%", boxSizing:"border-box", padding: "1%", fontSize:"2em", borderRadius: "5px", border: "1px solid #D8D8D8"}}/>
                     </div>
-                    <div style={{marginTop: "5%"}}>
-                        <div>{resultString}</div>
-                        <div className="search_results_container">
-                            {items}
+                    {
+                        !fetching &&
+                        <div style={{marginTop: "5%"}}>
+                            <div>{resultString}</div>
+                            <div className="search_results_container">
+                                {items}
+                            </div>
                         </div>
-                    </div>
+                    }
+                    {
+                        fetching &&
+                        <div style={{marginTop: "5%", textAlign: "center"}}>
+                            <img src={loadingGif} style={{maxWidth: "320px", maxHeight: "320px", width: "10%", height: "auto"}} />
+                        </div>
+                    }
                 </div>
                 {modal}
             </div>
