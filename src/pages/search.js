@@ -1,8 +1,7 @@
 import React from 'react'
 import {connect} from 'react-redux'
-import {Link} from 'react-router-dom'
 import Moment from 'moment'
-import {Modal} from 'react-bootstrap'
+import CustomModal from '../components/modal'
 
 import history from '../_helper/history'
 import * as searchAction from '../actions/searchAction'
@@ -13,15 +12,16 @@ import '../style/main.css'
 import '../style/fontawesome.min.css'
 import '../style/light.min.css'
 import '../style/solid.min.css'
-import 'bootstrap/dist/css/bootstrap.min.css'
 
 import audioImage from '../assets/images/audio-wave.jpg'
 import loadingGif from '../assets/images/loading.gif'
+import { isNullOrUndefined } from 'util'
 
 class SearchPage extends React.Component {
     constructor(props) {
         super(props)
         this.state= {}
+        this.handleChangeInModal = this.handleChangeInModal.bind(this)
     }
 
     changeUrl(link) {
@@ -50,8 +50,58 @@ class SearchPage extends React.Component {
         let title = data.title,
         description = data.description,
         type = data.media_type,
-        previewLink = result.links ? result.links[0].href : null,
-        fileLink = result.href[0]
+        previewLink = result.links ? result.links[0].href : null
+        let fileLink
+        switch(type) {
+            case 'video':
+                fileLink = result.href.find(href => {
+                    let split = href.split('.')
+                    switch(split[split.length -1]) {
+                        case 'mp4':
+                            return true;
+                        default:
+                            return false;
+                    }
+                })
+                break;
+            case 'image':
+                fileLink = result.href.find(href => {
+                    let split = href.split('.')
+                    switch(split[split.length -1]) {
+                        case 'apng':
+                        case 'bmp':
+                        case 'gif':
+                        case 'ico':
+                        case 'cur':
+                        case 'jpg':
+                        case 'jpeg':
+                        case 'jfif':
+                        case 'pjpeg':
+                        case 'pjp':
+                        case 'png':
+                        case 'svg':
+                            return true;
+                        default:
+                            return false;
+                    }
+                })
+                break;
+            case 'audio':
+                fileLink = result.href.find(href => {
+                    let split = href.split('.')
+                    switch(split[split.length -1]) {
+                        case 'mp3':
+                        case 'ogg':
+                        case 'wav':
+                            return true;
+                        default:
+                            return false;
+                    }
+                })
+                break;
+            default:
+                break;
+        }
 
 
         this.setState({
@@ -110,8 +160,7 @@ class SearchPage extends React.Component {
             links = fullData.links[0]
             links.href = previewLink
         }
-        let href = {...fullData.href[0]}
-        href = fileLink
+        let href = fileLink
 
         let newData = {
             ...fullData,
@@ -133,7 +182,7 @@ class SearchPage extends React.Component {
     }
 
     render() {
-        const {results, fetching, fetched, searchValue: sValue} = this.props.searchStore
+        const {results, fetching, fetched, searchValue: sValue, error} = this.props.searchStore
         const {showModal, modalType, modalData} = this.state
         const searchValue = this.state.searchValue || ''
         let resultString = ""
@@ -141,7 +190,6 @@ class SearchPage extends React.Component {
         if (!fetching) {
             if (results.length > 0) {
                 let n = results.length
-                // console.log(results)
                 resultString = `${n} result${n > 1 ? 's': ''} for "${sValue}"`
             } else {
                 if (fetched) resultString = `No result for "${sValue}"`
@@ -149,7 +197,7 @@ class SearchPage extends React.Component {
         }
 
         let items = []
-
+        let err = null
         if (fetched) {
             items = results.map((result,i) => {
                 let [data] = result.data
@@ -268,6 +316,13 @@ class SearchPage extends React.Component {
                     </div>
                 )
             })
+        } else if (error) {
+            err = (
+                <div style={{color: "#E54D42", fontSize: "1.5em"}}>
+                    An error has occured. Please try again or search for other keywords.<br/>
+                    {error.message}
+                </div>
+            )
         }
 
         let modal;
@@ -276,23 +331,23 @@ class SearchPage extends React.Component {
                 case 'add':
                     modal = (
                         <div>
-                            <Modal show={showModal} onHide={this.handleCloseModal.bind(this)}>
-                                <Modal.Header closeButton>
+                            <CustomModal isShow={showModal} onClose={this.handleCloseModal.bind(this)} closeButton>
+                                <div style={{padding: "1em"}}>
                                     <span style={{fontWeight: "bold", fontSize: "2em"}}>Add to collection</span>
-                                </Modal.Header>
-                                <Modal.Body>
+                                </div>
+                                <div style={{padding: "1em"}}>
                                     <div className={'float_container ' + (modalData.title.length > 0 ? 'active' : '')}>
                                         <label htmlFor="title">Title</label>
-                                        <input name="title" type="text" value={modalData.title} onChange={this.handleChangeInModal.bind(this, event)}/>
+                                        <input name="title" type="text" value={modalData.title} onChange={this.handleChangeInModal}/>
                                     </div>
                                     <div className={'float_container ' + (modalData.description.length > 0 ? 'active' : '')}>
                                         <label htmlFor="description">Description</label>
-                                        <textarea name="description" rows={15} wrap="soft" onChange={this.handleChangeInModal.bind(this, event)} value={modalData.description}></textarea>
+                                        <textarea name="description" rows={15} wrap="soft" onChange={this.handleChangeInModal} value={modalData.description}></textarea>
                                     </div>
                                     <div className={'float_container ' + (modalData.type.length > 0 ? 'active' : '')}>
                                         <label htmlFor="type">Type</label>
                                         <div className="select">
-                                            <select name="type" onChange={this.handleChangeInModal.bind(this, event)} value={modalData.type}>
+                                            <select name="type" onChange={this.handleChangeInModal} value={modalData.type}>
                                                 <option value="video">Video</option>
                                                 <option value="image">Image</option>
                                                 <option value="audio">Audio</option>
@@ -301,14 +356,14 @@ class SearchPage extends React.Component {
                                     </div>
                                     <div className={'float_container ' + (modalData.title.length > 0 ? 'active' : '')}>
                                         <label htmlFor="previewLink">Link preview image url</label>
-                                        <input name="previewLink" type="text" value={modalData.previewLink} onChange={this.handleChangeInModal.bind(this, event)}/>
+                                        <input name="previewLink" type="text" value={modalData.previewLink} onChange={this.handleChangeInModal}/>
                                     </div>
                                     <div className={'float_container ' + (modalData.title.length > 0 ? 'active' : '')}>
                                         <label htmlFor="fileLink">Link file url</label>
-                                        <input name="fileLink" type="text" value={modalData.fileLink} onChange={this.handleChangeInModal.bind(this, event)}/>
+                                        <input name="fileLink" type="text" value={modalData.fileLink} onChange={this.handleChangeInModal}/>
                                     </div>
-                                </Modal.Body>
-                                <Modal.Footer style={{justifyContent: "flex-start"}}>
+                                </div>
+                                <div style={{padding: "1em"}}>
                                     <div className="add_button" onClick={this.handleAddItem.bind(this, modalData.fullData)}>
                                         <div style={{display: "flex", alignItems: "center"}}>
                                             <i className="fal fa-check fa-3x" style={{paddingLeft: "15px", paddingRight: "15px"}}></i>
@@ -317,8 +372,8 @@ class SearchPage extends React.Component {
                                             </div>
                                         </div>
                                     </div>
-                                </Modal.Footer>
-                            </Modal>
+                                </div>
+                            </CustomModal>
                         </div>
                     );
                     break;
@@ -349,14 +404,14 @@ class SearchPage extends React.Component {
                     }
                     modal = (
                         <div>
-                            <Modal show={showModal} onHide={this.handleCloseModal.bind(this)} dialogClassName="custom_dialog" style={{backgroundColor: "#333333"}}>
+                            <CustomModal isShow={showModal} onClose={this.handleCloseModal.bind(this)} dialogClassName="custom_dialog" style={{backgroundColor: "#333333"}}>
                                 <div style={{fontWeight: "bold", fontSize: "3em", color: '#CCCCCC'}}>
                                     {modalData.title}
                                 </div>
                                 <div>
                                     {content}
                                 </div>
-                            </Modal>
+                            </CustomModal>
                         </div>
                     );
                     
@@ -378,8 +433,12 @@ class SearchPage extends React.Component {
                         Search from NASA
                     </div>
                     <div>
-                        <input type='text' name='searchValue' disabled={fetching?'disabled': ''} value={searchValue || sValue} placeholder="Type something to search..." onChange={this.onInput.bind(this)} onKeyPress={this.onInputKeyPress.bind(this)} style={{width: "100%", boxSizing:"border-box", padding: "1%", fontSize:"2em", borderRadius: "5px", border: "1px solid #D8D8D8"}}/>
+                        <input type='text' name='searchValue' disabled={fetching?'disabled': ''} value={!isNullOrUndefined(searchValue) ? searchValue : sValue} placeholder="Type something to search..." onChange={this.onInput.bind(this)} onKeyPress={this.onInputKeyPress.bind(this)} style={{width: "100%", boxSizing:"border-box", padding: "1%", fontSize:"2em", borderRadius: "5px", border: "1px solid #D8D8D8"}}/>
                     </div>
+                    {
+                        error &&
+                        err
+                    }
                     {
                         !fetching &&
                         <div style={{marginTop: "5%"}}>

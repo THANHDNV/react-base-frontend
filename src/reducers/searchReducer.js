@@ -15,7 +15,8 @@ export default function searchReducer(state=initialState, action) {
                 ...state,
                 fetching: true,
                 fetched: false,
-                searchValue: action.payload
+                searchValue: action.payload,
+                error: null
             }
         case searchConstant.SEARCH_FETCH_FULFILLED:
             const {data} = action.payload;
@@ -23,7 +24,8 @@ export default function searchReducer(state=initialState, action) {
                 ...state,
                 fetching: false,
                 fetched: true,
-                results: data.collection.items || []
+                results: data.collection.items || [],
+                error: null
             }
         case searchConstant.SEARCH_FETCH_ERROR:
             return {

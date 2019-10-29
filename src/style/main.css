@@ -152,6 +152,7 @@ input:focus {
 .custom_dialog {
     background-color: transparent;
     max-width: 80% !important;
+    border: none
 }
 
 .custom_dialog .modal-content {
@@ -189,3 +190,16 @@ input:focus {
     opacity: 1;
 }
 
+.button {
+    width: 5em;
+    height: 2em;
+    margin: 0.5em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+    border-color: #f8f9fa;
+    color: #212529;
+    background-color: #f8f9fa;
+    cursor: pointer
+}

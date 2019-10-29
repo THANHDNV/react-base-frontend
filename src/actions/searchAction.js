@@ -30,6 +30,11 @@ export function search(query) {
                     type: searchConst.SEARCH_FETCH_FULFILLED,
                     payload: data
                 })
+            }).catch(error => {
+                dispatch({
+                    type: searchConst.SEARCH_FETCH_ERROR,
+                    payload: error
+                })
             })
             
         }).catch(error => {

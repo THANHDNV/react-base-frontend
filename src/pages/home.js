@@ -1,7 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import Moment from 'moment'
-import {Modal} from 'react-bootstrap'
 import CustomModal from '../components/modal'
 
 import history from '../_helper/history'
@@ -11,12 +10,12 @@ import * as collectionAction from '../actions/collectionAction'
 import '../style/main.css'
 import '../style/fontawesome.min.css'
 import '../style/light.min.css'
-import 'bootstrap/dist/css/bootstrap.min.css'
 
 class HomePage extends React.Component {
     constructor() {
         super()
         this.state = {}
+        this.handleChangeInModal = this.handleChangeInModal.bind(this)
     }
     changeUrl(link) {
         history.push(link)
@@ -56,8 +55,12 @@ class HomePage extends React.Component {
         })
     }
 
+    handleDelete(id) {
+        this.removeFromCollection(id)
+        this.handleCloseModal()
+    }
+
     handleCloseModal() {
-        console.log('set showModal false')
         this.setState({
             showModal: false
         })
@@ -87,12 +90,14 @@ class HomePage extends React.Component {
     }
 
     handleChangeInModal(e) {
-        this.setState({
-            modalData: {
-                ...this.state.modalData,
-                [e.target.name]: e.target.value
-            }
-        })
+        if(e.target) {
+            this.setState({
+                modalData: {
+                    ...this.state.modalData,
+                    [e.target.name]: e.target.value
+                }
+            })   
+        }
     }
 
     handleEditItem(fullData) {
@@ -296,37 +301,37 @@ class HomePage extends React.Component {
                     }
                     modal = (
                         <div>
-                            <Modal show={showModal} onHide={this.handleCloseModal.bind(this)} dialogClassName="custom_dialog" style={{backgroundColor: "#333333"}}>
+                            <CustomModal isShow={showModal} onClose={this.handleCloseModal.bind(this)} dialogClassName="custom_dialog" style={{backgroundColor: "#333333"}}>
                                 <div style={{fontWeight: "bold", fontSize: "3em", color: '#CCCCCC'}}>
                                     {modalData.title}
                                 </div>
                                 <div>
                                     {content}
                                 </div>
-                            </Modal>
+                            </CustomModal>
                         </div>
                     );
                     break;
                 case 'edit':
                     modal = (
                         <div>
-                            <Modal show={showModal} onHide={this.handleCloseModal.bind(this)}>
-                                <Modal.Header closeButton>
+                            <CustomModal isShow={showModal} onClose={this.handleCloseModal.bind(this)} closeButton>
+                                <div style={{padding: "1em"}}>
                                     <span style={{fontWeight: "bold", fontSize: "2em"}}>Edit</span>
-                                </Modal.Header>
-                                <Modal.Body>
+                                </div>
+                                <div style={{padding: "1em"}}>
                                     <div className={'float_container ' + (modalData.title.length > 0 ? 'active' : '')}>
                                         <label htmlFor="title">Title</label>
-                                        <input name="title" type="text" value={modalData.title} onChange={this.handleChangeInModal.bind(this, event)}/>
+                                        <input name="title" type="text" value={modalData.title} onChange={this.handleChangeInModal}/>
                                     </div>
                                     <div className={'float_container ' + (modalData.description.length > 0 ? 'active' : '')}>
                                         <label htmlFor="description">Description</label>
-                                        <textarea name="description" rows={15} wrap="soft" onChange={this.handleChangeInModal.bind(this, event)} value={modalData.description}></textarea>
+                                        <textarea name="description" rows={15} wrap="soft" onChange={this.handleChangeInModal} value={modalData.description}></textarea>
                                     </div>
                                     <div className={'float_container ' + (modalData.type.length > 0 ? 'active' : '')}>
                                         <label htmlFor="type">Type</label>
                                         <div className="select">
-                                            <select name="type" onChange={this.handleChangeInModal.bind(this, event)} value={modalData.type}>
+                                            <select name="type" onChange={this.handleChangeInModal} value={modalData.type}>
                                                 <option value="video">Video</option>
                                                 <option value="image">Image</option>
                                                 <option value="audio">Audio</option>
@@ -335,14 +340,14 @@ class HomePage extends React.Component {
                                     </div>
                                     <div className={'float_container ' + (modalData.title.length > 0 ? 'active' : '')}>
                                         <label htmlFor="previewLink">Link preview image url<span style={{color: "red"}}>*</span></label>
-                                        <input name="previewLink" type="text" value={modalData.previewLink} onChange={this.handleChangeInModal.bind(this, event)}/>
+                                        <input name="previewLink" type="text" value={modalData.previewLink} onChange={this.handleChangeInModal}/>
                                     </div>
                                     <div className={'float_container ' + (modalData.title.length > 0 ? 'active' : '')}>
                                         <label htmlFor="fileLink">Link file url<span style={{color: "red"}}>*</span></label>
-                                        <input name="fileLink" type="text" value={modalData.fileLink} onChange={this.handleChangeInModal.bind(this, event)}/>
+                                        <input name="fileLink" type="text" value={modalData.fileLink} onChange={this.handleChangeInModal}/>
                                     </div>
-                                </Modal.Body>
-                                <Modal.Footer style={{justifyContent: "flex-start"}}>
+                                </div>
+                                <div style={{padding: "1em"}}>
                                     <div className="add_button" onClick={this.handleEditItem.bind(this, modalData.fullData)}>
                                         <div style={{display: "flex", alignItems: "center"}}>
                                             <i className="fal fa-check fa-3x" style={{paddingLeft: "15px", paddingRight: "15px"}}></i>
@@ -351,20 +356,24 @@ class HomePage extends React.Component {
                                             </div>
                                         </div>
                                     </div>
-                                </Modal.Footer>
-                            </Modal>
+                                </div>
+                            </CustomModal>
                         </div>
                     );
                     break;
                 case 'delete':
                     modal=(
                         <CustomModal onClose={this.handleCloseModal.bind(this)} isShow={showModal} closeButton>
-                            <div>
-                                This is a custom modal!!!!!!!!!!!
+                            <div style={{padding: "1em"}}>
+                                <span style={{fontWeight: "bold", fontSize: "2em"}}>Delete</span>
                             </div>
-                            <button onClick={this.handleCloseModal.bind(this)}>
-                                Close
-                            </button>
+                            <div style={{padding: "1em", fontSize: "1em"}}>
+                                Do you want to delete this item?
+                            </div>
+                            <div style={{padding: "1em", display: "flex"}}>
+                                <div onClick={this.handleDelete.bind(this, modalData.id)} style={{borderColor: "#dc3545", color: "white", backgroundColor: "#dc3545"}} className="button">Delete</div>
+                                <div onClick={this.handleCloseModal.bind(this)} style={{borderColor: "#f8f9fa", color: "#212529", backgroundColor: "#f8f9fa"}} className="button">Cancel</div>
+                            </div>
                         </CustomModal>
                     )
                     break;
