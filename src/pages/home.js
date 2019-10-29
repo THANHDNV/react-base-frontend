@@ -2,6 +2,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import Moment from 'moment'
 import {Modal} from 'react-bootstrap'
+import CustomModal from '../components/modal'
 
 import history from '../_helper/history'
 import {getShortDescription} from '../_helper/utils'
@@ -45,7 +46,18 @@ class HomePage extends React.Component {
         this.props.dispatch(collectionAction.deleteItem(id))
     }
 
+    showDeleteDialog(id) {
+        this.setState({
+            showModal: true,
+            modalType: "delete",
+            modalData: {
+                id: id
+            }
+        })
+    }
+
     handleCloseModal() {
+        console.log('set showModal false')
         this.setState({
             showModal: false
         })
@@ -123,7 +135,6 @@ class HomePage extends React.Component {
     render() {
         let {collections, favorites} = this.props.collectionStore
         let {showModal, modalType, modalData} = this.state
-        console.log(collections)
         let items = collections.map((item,i) => {
             let [data] = item.data
 
@@ -244,7 +255,7 @@ class HomePage extends React.Component {
                         <div className="action first" onClick={favoriteOnClick}>
                             <i className={favoriteClass} />
                         </div>
-                        <div className='action' onClick={this.removeFromCollection.bind(this, item.id)}>
+                        <div className='action' onClick={this.showDeleteDialog.bind(this, item.id)}>
                             <i className="fal fa-trash-alt fa-2x" />
                         </div>
                         <div className='action' onClick={this.onClickEdit.bind(this,item)}>
@@ -344,6 +355,18 @@ class HomePage extends React.Component {
                             </Modal>
                         </div>
                     );
+                    break;
+                case 'delete':
+                    modal=(
+                        <CustomModal onClose={this.handleCloseModal.bind(this)} isShow={showModal} closeButton>
+                            <div>
+                                This is a custom modal!!!!!!!!!!!
+                            </div>
+                            <button onClick={this.handleCloseModal.bind(this)}>
+                                Close
+                            </button>
+                        </CustomModal>
+                    )
                     break;
                 default:
                     modal = null;

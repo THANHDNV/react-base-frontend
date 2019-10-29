@@ -1,0 +1,63 @@
+.custom_modal_cover {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    transform: translateZ(0);
+    background-color: rgb(51,51,51, 0.5)
+}
+
+@media screen and (min-width: 576px) {
+    .custom_modal {
+        max-width: 500px;
+    }
+}
+.custom_modal {
+    position: relative;
+    width: auto;
+    margin: 1.75rem auto 1.75rem auto;
+    padding: 0.25rem;
+    background: white;
+    border-radius: 0.3rem;
+    background-clip: padding-box;
+    border: 1px solid rgb(0,0,0, 0.2);
+    display: flex;
+    flex-direction: column;
+    min-height: 50%;
+}
+
+.custom_modal .close_button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding-top: 1em;
+    padding-right: 1em;
+}
+
+.modal-transition-enter {
+    opacity: 0;
+    transform: translateY(-50px)
+}
+
+.modal-transition-enter.modal-transition-enter-active {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 300ms ease-out, transform 300ms ease-out;
+}
+
+.modal-transition-leave {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.modal-transition-leave.modal-transition-leave-active {
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 300ms ease-out, transform 300ms ease-out;
+}
+
+.lock-scroll {
+    overflow: hidden !important;
+}
